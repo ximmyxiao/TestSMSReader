@@ -4,6 +4,8 @@
 #import "GCDAsyncSocket.h"
 #define TOTAL_HEADER_HEIGHT (260)
 
+#define SERVER_RETURN_STEP_0_OK @"0|0|ok"
+#define SERVER_RETURN_STEP_1_OK @"1|0|ok"
 
 typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     SOCKET_NOT_CONNECT = 0,
@@ -21,6 +23,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 @property(nonatomic,strong) NSString* selectContent;
 @property(nonatomic,strong) NSString* dbPath;
 @property(nonatomic, assign)SOCKET_STATE socketState;
+@property(nonatomic,assign) NSInteger lastHeartBeatInterval;
 @end
 
 @implementation XXRootViewController {
@@ -355,22 +358,45 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString* ip = components[0];
     NSString* port = components[1];
     
+    NSLog(@"begin connect to %@:%@",ip,port);
     if (![self.socket connectToHost:ip onPort: [port integerValue]  error:nil])
     {
-
+        NSLog(@"connect failed!");
     }
+}
+
+- (void)sendHeartBeat
+{
+    NSString* content = @"3|0|";
+    [self sendContent:content];
+    [self performSelector:@selector(sendHeartBeat) withObject:nil afterDelay:30];
+}
+
+- (void)sendFirstContent
+{
+    NSString* content = [NSString stringWithFormat:@"0|0|%@|1",self.accountTF.text];
+    [self sendContent:content];
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
 {
-    NSString* content = [NSString stringWithFormat:@"0|0|%@|1",self.accountTF.text];
-    [self sendContent:content];
+    [self sendFirstContent];
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
     NSString* readContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"socket read:%@",readContent);
+    NSInteger time = [[NSDate date] timeIntervalSince1970];
+    self.lastHeartBeatInterval = time;
+    if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch])
+    {
+        [self startHeartBeatCheck];
+    }
+    else if ([readContent hasPrefix:SERVER_RETURN_STEP_1_OK])
+    {
+        [self needSendMsg:readContent];
+    }
 }
 
 - (void)sendContent:(NSString*)content
@@ -378,16 +404,35 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString *requestStrFrmt = @"%@\r\n\r\n";
     
     NSString *requestStr = [NSString stringWithFormat:requestStrFrmt,content];
-    
+    NSLog(@"send content:%@",requestStr);
+
     //    NSString *requestStr = @"abcd";
     //    requestStr = [requestStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSData *requestData = [requestStr dataUsingEncoding:NSUTF8StringEncoding];
-    
     [self.socket writeData:requestData withTimeout:-1.0 tag:0];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
     [[NSUserDefaults standardUserDefaults] setObject:self.ipTF.text forKey:@"LastIP"];
+}
+
+- (void)startHeartBeatCheck
+{
+    NSInteger time = [[NSDate date] timeIntervalSince1970];
+    if (time - self.lastHeartBeatInterval >= 60)
+    {
+        NSLog(@"heart beat timeout");
+        [self connectSocket];
+    }
+    else
+    {
+        [self performSelector:@selector(startHeartBeatCheck) withObject:nil afterDelay:60];
+    }
+}
+
+- (void)needSendMsg:(NSString*)content
+{
+    
 }
 @end
