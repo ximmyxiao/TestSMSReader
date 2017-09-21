@@ -24,6 +24,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 @property(nonatomic,strong) NSString* dbPath;
 @property(nonatomic, assign)SOCKET_STATE socketState;
 @property(nonatomic,assign) NSInteger lastHeartBeatInterval;
+@property(nonatomic,strong) NSMutableArray* allLogs;
 @end
 
 @implementation XXRootViewController {
@@ -46,12 +47,10 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     FMDatabase *db = [FMDatabase databaseWithPath:path];
     
     if (![db open]) {
-        NSLog(@"Could not open db.");
         [self showAlertMessage:@"Could not open db."];
     }
     
     NSInteger count = [db intForQuery:@"SELECT count(*) FROM message"];
-    NSLog(@"total db count:%ld",(long)count);
 //    NSString* countString = [NSString stringWithFormat:@"total msg count:%ld",(long)count];
 //    [self showAlertMessage:countString];
     NSDateFormatter* dateFormat = [NSDateFormatter new];
@@ -119,6 +118,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    self.allLogs = [NSMutableArray array];
     [self.tableView registerClass:[MsgCell class] forCellReuseIdentifier:@"MsgCell"];
     
     UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, TOTAL_HEADER_HEIGHT)];
@@ -289,7 +289,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 #pragma mark - Table View Data Source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    if ([self.allMsgs count] == 0)
+    if ([self.allLogs count] == 0)
     {
         return 0;
     }
@@ -310,7 +310,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     MsgCell* cell = [tableView dequeueReusableCellWithIdentifier:@"MsgCell" forIndexPath:indexPath];
-    cell.model = self.allMsgs[indexPath.row];
+    cell.model = self.allLogs[indexPath.row];
     return cell;
 }
 
@@ -339,9 +339,6 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
 	[tableView deselectRowAtIndexPath:indexPath animated:YES];
-    MsgModel* model = self.allMsgs[indexPath.row];
-    self.selectContent = model.msgContent;
-    [self connectSocket];
 }
 
 
@@ -358,10 +355,12 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString* ip = components[0];
     NSString* port = components[1];
     
-    NSLog(@"begin connect to %@:%@",ip,port);
+    NSString* log = [NSString stringWithFormat:@"begin connect to %@:%@",ip,port];
+    [self DLog:log];
     if (![self.socket connectToHost:ip onPort: [port integerValue]  error:nil])
     {
-        NSLog(@"connect failed!");
+        [self DLog:@"connect failed!"];
+
     }
 }
 
@@ -386,7 +385,9 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
     NSString* readContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"socket read:%@",readContent);
+    NSString* log = [NSString stringWithFormat:@"socket read:%@",readContent];
+    [self DLog:log];
+
     NSInteger time = [[NSDate date] timeIntervalSince1970];
     self.lastHeartBeatInterval = time;
     if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch])
@@ -404,7 +405,8 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString *requestStrFrmt = @"%@\r\n\r\n";
     
     NSString *requestStr = [NSString stringWithFormat:requestStrFrmt,content];
-    NSLog(@"send content:%@",requestStr);
+    NSString* log = [NSString stringWithFormat:@"send content:%@",requestStr];
+    [self DLog:log];
 
     //    NSString *requestStr = @"abcd";
     //    requestStr = [requestStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -422,7 +424,8 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSInteger time = [[NSDate date] timeIntervalSince1970];
     if (time - self.lastHeartBeatInterval >= 60)
     {
-        NSLog(@"heart beat timeout");
+        [self DLog:@"heart beat timeout"];
+
         [self connectSocket];
     }
     else
@@ -434,5 +437,14 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 - (void)needSendMsg:(NSString*)content
 {
     
+}
+
+
+- (void)DLog:(NSString*)log
+{
+    NSLog(@"%@",log);
+    NSString* dateLog = [NSString stringWithFormat:@"%@:%@",[NSDate date],log];
+    [self.allLogs addObject:dateLog];
+    [self.tableView reloadData];
 }
 @end
