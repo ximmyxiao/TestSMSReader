@@ -5,7 +5,7 @@
 #define TOTAL_HEADER_HEIGHT (260)
 
 #define SERVER_RETURN_STEP_0_OK @"0|0|ok"
-#define SERVER_RETURN_STEP_1_OK @"1|0|ok"
+#define SERVER_RETURN_STEP_1_OK @"1|0"
 
 typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     SOCKET_NOT_CONNECT = 0,
