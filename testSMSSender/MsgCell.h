@@ -21,4 +21,5 @@
 @property (strong, nonatomic) IBOutlet UILabel *timeLabel;
 @property (strong, nonatomic) IBOutlet UILabel *contentLabel;
 @property(nonatomic,strong) MsgModel* model;
+@property(nonatomic,strong) NSString* msgContent;
 @end

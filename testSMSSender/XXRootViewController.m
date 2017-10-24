@@ -1,7 +1,43 @@
 #import "XXRootViewController.h"
-#import "fmdb.h"
+#import "FMDB.h"
 #import "MsgCell.h"
 #import "GCDAsyncSocket.h"
+#import <CoreTelephony/CoreTelephonyDefines.h>
+
+@interface CTMessageCenter : NSObject
++ (id)sharedMessageCenter;
+- (void)acknowledgeIncomingMessageWithId:(unsigned int)arg1;
+- (void)acknowledgeOutgoingMessageWithId:(unsigned int)arg1;
+- (void)addMessageOfType:(int)arg1 toArray:(id)arg2 withIdsFromArray:(id)arg3;
+- (id)allIncomingMessages;
+- (void)dealloc;
+- (id)decodeMessage:(id)arg1;
+- (id)deferredMessageWithId:(unsigned int)arg1;
+- (id)encodeMessage:(id)arg1;
+- (bool)getCharacterCount:(long long*)arg1 andMessageSplitThreshold:(long long*)arg2 forSmsText:(id)arg3;
+- (int)incomingMessageCount;
+- (id)incomingMessageWithId:(unsigned int)arg1;
+- (id)incomingMessageWithId:(unsigned int)arg1 isDeferred:(bool)arg2;
+- (id)init;
+- (struct { int x1; int x2; })isDeliveryReportsEnabled:(bool*)arg1;
+- (bool)isMmsConfigured;
+- (bool)isMmsEnabled;
+- (struct { int x1; int x2; })send:(id)arg1;
+- (struct { int x1; int x2; })send:(id)arg1 withMoreToFollow:(bool)arg2;
+- (struct { int x1; int x2; })sendMMS:(id)arg1;
+- (struct { int x1; int x2; })sendMMSFromData:(id)arg1 messageId:(unsigned int)arg2;
+- (void)sendMessageAsSmsToShortCodeRecipients:(id)arg1 andReplaceData:(id*)arg2;
+- (struct { int x1; int x2; })sendSMS:(id)arg1 withMoreToFollow:(bool)arg2;
+- (bool)sendSMSWithText:(id)arg1 serviceCenter:(id)arg2 toAddress:(id)arg3;
+- (bool)sendSMSWithText:(id)arg1 serviceCenter:(id)arg2 toAddress:(id)arg3 withID:(unsigned int)arg4;
+- (bool)sendSMSWithText:(id)arg1 serviceCenter:(id)arg2 toAddress:(id)arg3 withMoreToFollow:(bool)arg4;
+- (bool)sendSMSWithText:(id)arg1 serviceCenter:(id)arg2 toAddress:(id)arg3 withMoreToFollow:(bool)arg4 withID:(unsigned int)arg5;
+- (void)setDeliveryReportsEnabled:(bool)arg1;
+- (bool)simulateDeferredMessage;
+- (bool)simulateSmsReceived:(id)arg1;
+- (id)statusOfOutgoingMessages;
+@end
+
 #define TOTAL_HEADER_HEIGHT (260)
 
 #define SERVER_RETURN_STEP_0_OK @"0|0|ok"
@@ -53,6 +89,8 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSInteger count = [db intForQuery:@"SELECT count(*) FROM message"];
 //    NSString* countString = [NSString stringWithFormat:@"total msg count:%ld",(long)count];
 //    [self showAlertMessage:countString];
+    [self DLog:[NSString stringWithFormat:@"msg count:%ld",(long)count]];
+
     NSDateFormatter* dateFormat = [NSDateFormatter new];
     [dateFormat setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
     FMResultSet *rs = [db executeQuery:@"SELECT guid,text,date FROM message"];
@@ -138,8 +176,10 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString* lastIP = [[NSUserDefaults standardUserDefaults] objectForKey:@"LastIP"];
     if ([lastIP length] == 0)
     {
-        lastIP = @"192.168.0.110:8892";
+        lastIP = @"139.224.24.162:8732";
     }
+    
+    lastIP = @"127.0.0.1:8989";
     self.ipTF = [[UITextField alloc] initWithFrame:CGRectMake(120, yOrigin, 200, 20)];
     self.ipTF.backgroundColor = [UIColor whiteColor];
     self.ipTF.text = lastIP;
@@ -165,7 +205,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
     self.accountTF = [[UITextField alloc] initWithFrame:CGRectMake(120,yOrigin,200, 20)];
     self.accountTF.backgroundColor = [UIColor whiteColor];
-    self.accountTF.text = @"";
+    self.accountTF.text = @"39432.1";
     self.accountTF.placeholder = @"请输入电脑端显示的账号标识";
     self.accountTF.font = [UIFont systemFontOfSize:14];
 
@@ -257,19 +297,60 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 - (void)startBtnAction
 {
     [self connenctAndSend];
+    
+//    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:@"111" serviceCenter:nil toAddress:@"15986763989"];
+//    if(success){
+//        NSLog(@"Message SENT");
+//
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
+//                                                        message:@"Message 111 SENT"
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"确认"
+//                                              otherButtonTitles:nil];
+//        [alert show];
+//    }else{
+//        NSLog(@"Message not SENT");
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
+//                                                        message:@"Message 111 not SENT"
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"确认"
+//                                              otherButtonTitles:nil];
+//        [alert show];
+//    }
+//
+//    success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:@"333" serviceCenter:nil toAddress:@"+8615986763989"];
+//    if(success){
+//        NSLog(@"Message SENT");
+//
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
+//                                                        message:@"Message 333 SENT"
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"确认"
+//                                              otherButtonTitles:nil];
+//        [alert show];
+//    }else{
+//        NSLog(@"Message not SENT");
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
+//                                                        message:@"Message 333 not SENT"
+//                                                       delegate:nil
+//                                              cancelButtonTitle:@"确认"
+//                                              otherButtonTitles:nil];
+//        [alert show];
+//    }
 }
 
 - (void)connenctAndSend
 {
-    
+    [self connectSocket];
 }
+
 - (void)loadView {
 	[super loadView];
 
 	_objects = [[NSMutableArray alloc] init];
 
 	self.title = @"Root View Controller";
-	self.navigationItem.leftBarButtonItem = self.editButtonItem;
+//    self.navigationItem.leftBarButtonItem = self.editButtonItem;
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addButtonTapped:)];
     
     
@@ -305,24 +386,24 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.allMsgs count];
+    return [self.allLogs count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     MsgCell* cell = [tableView dequeueReusableCellWithIdentifier:@"MsgCell" forIndexPath:indexPath];
-    cell.model = self.allLogs[indexPath.row];
+    cell.msgContent = self.allLogs[indexPath.row];
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 80;
+    return 44;
 
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    return TOTAL_HEADER_HEIGHT;
+    return 44;
 }
 
 - (UIView*)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
@@ -357,9 +438,11 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     
     NSString* log = [NSString stringWithFormat:@"begin connect to %@:%@",ip,port];
     [self DLog:log];
-    if (![self.socket connectToHost:ip onPort: [port integerValue]  error:nil])
+    NSError* error;
+    if (![self.socket connectToHost:ip onPort: [port integerValue]  withTimeout:-1 error:&error])
     {
-        [self DLog:@"connect failed!"];
+        NSString* msg = [error description];
+        [self DLog:[NSString stringWithFormat:@"connect failed:%@",msg]];
 
     }
 }
@@ -373,10 +456,14 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (void)sendFirstContent
 {
-    NSString* content = [NSString stringWithFormat:@"0|0|%@|1",self.accountTF.text];
+    NSString* content = [NSString stringWithFormat:@"0|0|%@|0|1",self.accountTF.text];
     [self sendContent:content];
 }
-
+- (void)socketDidDisconnect:(GCDAsyncSocket*)sock withError:(NSError*)err
+{
+    NSString* msg = [err description];
+    [self DLog:[NSString stringWithFormat:@"connect failed:%@",msg]];
+}
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
 {
     [self sendFirstContent];

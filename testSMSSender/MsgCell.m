@@ -31,6 +31,15 @@
     }
     return self;
 }
+
+- (void)setMsgContent:(NSString*)msgContent
+{
+    _msgContent = msgContent;
+    self.contentLabel.text = msgContent;
+    [self.contentLabel sizeToFit];
+    self.contentLabel.frame = CGRectMake(10, 40, [UIScreen mainScreen].bounds.size.width - 20, self.contentLabel.bounds.size.height);
+}
+
 - (void)setModel:(MsgModel *)model
 {
     _model = model;

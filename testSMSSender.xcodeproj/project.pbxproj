@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		007D77A21F3364DC0067F97A /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 007D77A11F3364DC0067F97A /* libsqlite3.tbd */; };
 		007D77A41F3366AA0067F97A /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 007D77A31F3366AA0067F97A /* UIKit.framework */; };
-		007D77A81F3367E70067F97A /* sms.db in Resources */ = {isa = PBXBuildFile; fileRef = 007D77A51F3367E70067F97A /* sms.db */; };
-		007D77A91F3367E70067F97A /* sms.db-shm in Resources */ = {isa = PBXBuildFile; fileRef = 007D77A61F3367E70067F97A /* sms.db-shm */; };
-		007D77AA1F3367E70067F97A /* sms.db-wal in Resources */ = {isa = PBXBuildFile; fileRef = 007D77A71F3367E70067F97A /* sms.db-wal */; };
 		00ACF0C71F32B14600B699F0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ACF0C61F32B14600B699F0 /* main.m */; };
 		00ACF0CA1F32B14600B699F0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ACF0C91F32B14600B699F0 /* AppDelegate.m */; };
 		00ACF0CD1F32B14600B699F0 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ACF0CC1F32B14600B699F0 /* ViewController.m */; };
@@ -27,14 +24,14 @@
 		00ACF0F51F32B17A00B699F0 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ACF0EA1F32B17A00B699F0 /* GCDAsyncUdpSocket.m */; };
 		00ACF0F61F32B17A00B699F0 /* MsgCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ACF0EC1F32B17A00B699F0 /* MsgCell.m */; };
 		00ACF0F71F32B17A00B699F0 /* XXRootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00ACF0EE1F32B17A00B699F0 /* XXRootViewController.m */; };
+		9961D8651F9ED796001E3049 /* sms.db in Resources */ = {isa = PBXBuildFile; fileRef = 9961D8621F9ED655001E3049 /* sms.db */; };
+		9961D8661F9ED796001E3049 /* sms.db-shm in Resources */ = {isa = PBXBuildFile; fileRef = 9961D8631F9ED655001E3049 /* sms.db-shm */; };
+		9961D8671F9ED796001E3049 /* sms.db-wal in Resources */ = {isa = PBXBuildFile; fileRef = 9961D8641F9ED656001E3049 /* sms.db-wal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		007D77A11F3364DC0067F97A /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		007D77A31F3366AA0067F97A /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		007D77A51F3367E70067F97A /* sms.db */ = {isa = PBXFileReference; lastKnownFileType = file; name = sms.db; path = ../../../../Downloads/sms.db; sourceTree = "<group>"; };
-		007D77A61F3367E70067F97A /* sms.db-shm */ = {isa = PBXFileReference; lastKnownFileType = file; name = "sms.db-shm"; path = "../../../../Downloads/sms.db-shm"; sourceTree = "<group>"; };
-		007D77A71F3367E70067F97A /* sms.db-wal */ = {isa = PBXFileReference; lastKnownFileType = file; name = "sms.db-wal"; path = "../../../../Downloads/sms.db-wal"; sourceTree = "<group>"; };
 		00ACF0C21F32B14500B699F0 /* testSMSSender.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = testSMSSender.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00ACF0C61F32B14600B699F0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		00ACF0C81F32B14600B699F0 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -64,6 +61,9 @@
 		00ACF0EC1F32B17A00B699F0 /* MsgCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MsgCell.m; sourceTree = "<group>"; };
 		00ACF0ED1F32B17A00B699F0 /* XXRootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XXRootViewController.h; sourceTree = "<group>"; };
 		00ACF0EE1F32B17A00B699F0 /* XXRootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XXRootViewController.m; sourceTree = "<group>"; };
+		9961D8621F9ED655001E3049 /* sms.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = sms.db; sourceTree = "<group>"; };
+		9961D8631F9ED655001E3049 /* sms.db-shm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sms.db-shm"; sourceTree = "<group>"; };
+		9961D8641F9ED656001E3049 /* sms.db-wal */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sms.db-wal"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +91,9 @@
 		00ACF0B91F32B14500B699F0 = {
 			isa = PBXGroup;
 			children = (
+				9961D8621F9ED655001E3049 /* sms.db */,
+				9961D8631F9ED655001E3049 /* sms.db-shm */,
+				9961D8641F9ED656001E3049 /* sms.db-wal */,
 				00ACF0C41F32B14600B699F0 /* testSMSSender */,
 				00ACF0C31F32B14600B699F0 /* Products */,
 				007D77A01F3364DC0067F97A /* Frameworks */,
@@ -108,9 +111,6 @@
 		00ACF0C41F32B14600B699F0 /* testSMSSender */ = {
 			isa = PBXGroup;
 			children = (
-				007D77A51F3367E70067F97A /* sms.db */,
-				007D77A61F3367E70067F97A /* sms.db-shm */,
-				007D77A71F3367E70067F97A /* sms.db-wal */,
 				00ACF0DC1F32B17A00B699F0 /* FMDatabase.h */,
 				00ACF0DD1F32B17A00B699F0 /* FMDatabase.m */,
 				00ACF0DE1F32B17A00B699F0 /* FMDatabaseAdditions.h */,
@@ -209,11 +209,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				007D77AA1F3367E70067F97A /* sms.db-wal in Resources */,
+				9961D8651F9ED796001E3049 /* sms.db in Resources */,
+				9961D8661F9ED796001E3049 /* sms.db-shm in Resources */,
+				9961D8671F9ED796001E3049 /* sms.db-wal in Resources */,
 				00ACF0D51F32B14600B699F0 /* LaunchScreen.storyboard in Resources */,
-				007D77A81F3367E70067F97A /* sms.db in Resources */,
 				00ACF0D21F32B14600B699F0 /* Assets.xcassets in Resources */,
-				007D77A91F3367E70067F97A /* sms.db-shm in Resources */,
 				00ACF0D01F32B14600B699F0 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

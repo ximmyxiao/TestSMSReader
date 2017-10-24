@@ -28,7 +28,7 @@
 
 - (IBAction)btnAction:(id)sender {
     XXRootViewController* root = [XXRootViewController new];
-    [self presentViewController:root animated:YES completion:nil];
+    [self.navigationController pushViewController:root animated:YES];
 }
 
 @end
