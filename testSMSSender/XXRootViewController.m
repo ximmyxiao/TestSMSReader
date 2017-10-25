@@ -264,19 +264,32 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 {
     [super viewDidLoad];
     self.allLogs = [NSMutableArray array];
-    self.edgesForExtendedLayout = UIRectEdgeTop;
+    self.edgesForExtendedLayout = UIRectEdgeNone;
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
     
+    UIScrollView* scrollView = [[UIScrollView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, self.view.bounds.size.height)];
+    scrollView.backgroundColor = [UIColor clearColor];
+    scrollView.autoresizingMask =  UIViewAutoresizingFlexibleHeight;
+    scrollView.contentSize = CGSizeMake(screenWidth*2, 0);
+    scrollView.pagingEnabled = YES;
+    [self.view addSubview:scrollView];
+    
+    UIView* firstBgView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, screenWidth, self.view.bounds.size.height)];
+    firstBgView.backgroundColor = [UIColor whiteColor];
+    firstBgView.autoresizingMask =  UIViewAutoresizingFlexibleHeight;
+    [scrollView addSubview:firstBgView];
+
     UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, TOTAL_HEADER_HEIGHT)];
     headerView.backgroundColor = [UIColor colorWithRed:0xec/255.0 green:0xec/255.0 blue:0xec/255.0 alpha:1];
-    self.tableView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin;
-    [self.view addSubview:headerView];
+    [firstBgView addSubview:headerView];
     
-    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, headerView.frame.size.height, [UIScreen mainScreen].bounds.size.width, self.view.bounds.size.height - headerView.frame.size.height) style:UITableViewStylePlain];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(screenWidth, 0, screenWidth, self.view.bounds.size.height) style:UITableViewStylePlain];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     [self.tableView registerClass:[MsgCell class] forCellReuseIdentifier:@"MsgCell"];
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
-    [self.view addSubview:self.tableView];
+    [scrollView addSubview:self.tableView];
 
     CGFloat topPad = 10;
     CGFloat bottomPad = 10;
@@ -409,52 +422,12 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (void)startBtnAction
 {
-    [self checkAndSend];
 //    [self testFunc];
-//    [self connenctAndSend];
-//    
-//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
-//    [self periodicalReadSocket];
+    [self connenctAndSend];
     
-//    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:@"111" serviceCenter:nil toAddress:@"15986763989"];
-//    if(success){
-//        NSLog(@"Message SENT");
-//
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
-//                                                        message:@"Message 111 SENT"
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"确认"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-//    }else{
-//        NSLog(@"Message not SENT");
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
-//                                                        message:@"Message 111 not SENT"
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"确认"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-//    }
-//
-//    success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:@"333" serviceCenter:nil toAddress:@"+8615986763989"];
-//    if(success){
-//        NSLog(@"Message SENT");
-//
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
-//                                                        message:@"Message 333 SENT"
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"确认"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-//    }else{
-//        NSLog(@"Message not SENT");
-//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"权限设置"
-//                                                        message:@"Message 333 not SENT"
-//                                                       delegate:nil
-//                                              cancelButtonTitle:@"确认"
-//                                              otherButtonTitles:nil];
-//        [alert show];
-//    }
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
+    [self periodicalReadSocket];
+
 }
 
 - (void)connenctAndSend
