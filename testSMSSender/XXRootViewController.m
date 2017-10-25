@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     SOCKET_IN_CONNECT,
 };
 
-@interface XXRootViewController()<GCDAsyncSocketDelegate,UITextFieldDelegate>
+@interface XXRootViewController()<GCDAsyncSocketDelegate,UITextFieldDelegate,UITableViewDelegate,UITableViewDataSource>
 @property(nonatomic,strong) NSMutableArray* allMsgs;
 @property(nonatomic,strong) UITextField* ipTF;
 @property(nonatomic,strong) UITextField* accountTF;
@@ -61,6 +61,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 @property(nonatomic, assign)SOCKET_STATE socketState;
 @property(nonatomic,assign) NSInteger lastHeartBeatInterval;
 @property(nonatomic,strong) NSMutableArray* allLogs;
+@property(nonatomic,strong) UITableView* tableView;
 @end
 
 @implementation XXRootViewController {
@@ -157,11 +158,20 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 {
     [super viewDidLoad];
     self.allLogs = [NSMutableArray array];
-    [self.tableView registerClass:[MsgCell class] forCellReuseIdentifier:@"MsgCell"];
+    
     
     UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, TOTAL_HEADER_HEIGHT)];
     headerView.backgroundColor = [UIColor colorWithRed:0xec/255.0 green:0xec/255.0 blue:0xec/255.0 alpha:1];
+    self.tableView.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin;
+    [self.view addSubview:headerView];
     
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, headerView.frame.size.height, [UIScreen mainScreen].bounds.size.width, self.view.bounds.size.height - headerView.frame.size.height) style:UITableViewStylePlain];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
+    [self.tableView registerClass:[MsgCell class] forCellReuseIdentifier:@"MsgCell"];
+    self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:self.tableView];
+
     CGFloat topPad = 10;
     CGFloat bottomPad = 10;
     
@@ -179,7 +189,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
         lastIP = @"139.224.24.162:8732";
     }
     
-    lastIP = @"127.0.0.1:8989";
+//    lastIP = @"127.0.0.1:5000";
     self.ipTF = [[UITextField alloc] initWithFrame:CGRectMake(120, yOrigin, 200, 20)];
     self.ipTF.backgroundColor = [UIColor whiteColor];
     self.ipTF.text = lastIP;
@@ -287,7 +297,6 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     [btn setTitle:@"开始" forState:UIControlStateNormal];
     [btn addTarget:self action:@selector(startBtnAction) forControlEvents:UIControlEventTouchUpInside];
     [headerView addSubview:btn];
-    self.tableView.tableHeaderView = headerView;
 
     [self loadSMSData];
     
@@ -297,6 +306,9 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 - (void)startBtnAction
 {
     [self connenctAndSend];
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
+    [self periodicalReadSocket];
     
 //    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:@"111" serviceCenter:nil toAddress:@"15986763989"];
 //    if(success){
@@ -418,9 +430,9 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 #pragma mark - Table View Delegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-	[tableView deselectRowAtIndexPath:indexPath animated:YES];
-}
+//- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+//    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//}
 
 
 #pragma mark - socket utility
@@ -447,11 +459,18 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     }
 }
 
+- (void)periodicalReadSocket
+{
+    [self.socket readDataWithTimeout:-1 tag:0];
+    [self performSelector:@selector(periodicalReadSocket) withObject:nil afterDelay:1];
+
+}
+
 - (void)sendHeartBeat
 {
     NSString* content = @"3|0|";
     [self sendContent:content];
-    [self performSelector:@selector(sendHeartBeat) withObject:nil afterDelay:30];
+    [self performSelector:@selector(sendHeartBeat) withObject:nil afterDelay:20];
 }
 
 - (void)sendFirstContent
@@ -469,21 +488,39 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     [self sendFirstContent];
 }
 
+- (void)socket:(GCDAsyncSocket *)sock didWriteDataWithTag:(long)tag
+{
+    NSString* log = [NSString stringWithFormat:@"socket did write"];
+    [self DLog:log];
+    NSInteger time = [[NSDate date] timeIntervalSince1970];
+    self.lastHeartBeatInterval = time;
+}
+
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
 {
     NSString* readContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSString* log = [NSString stringWithFormat:@"socket read:%@",readContent];
     [self DLog:log];
 
-    NSInteger time = [[NSDate date] timeIntervalSince1970];
-    self.lastHeartBeatInterval = time;
     if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch])
     {
         [self startHeartBeatCheck];
+        [self sendHeartBeat];
     }
     else if ([readContent hasPrefix:SERVER_RETURN_STEP_1_OK])
     {
-        [self needSendMsg:readContent];
+        //1|0|发送的短信内容||
+        NSArray* array = [readContent componentsSeparatedByString:@"|"];
+        if ([array count] >= 3)
+        {
+            NSString* code = array[2];
+            [self needSendMsgWithCode:code];
+
+        }
+        else
+        {
+            [self DLog:@"step 1 ok return error"];
+        }
     }
 }
 
@@ -499,11 +536,17 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     //    requestStr = [requestStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSData *requestData = [requestStr dataUsingEncoding:NSUTF8StringEncoding];
     [self.socket writeData:requestData withTimeout:-1.0 tag:0];
+    [self.socket readDataWithTimeout:-1 tag:0];
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
     [[NSUserDefaults standardUserDefaults] setObject:self.ipTF.text forKey:@"LastIP"];
+}
+
+- (void)stopHeartBeatCheck
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(startHeartBeatCheck) object:nil];
 }
 
 - (void)startHeartBeatCheck
@@ -521,9 +564,29 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     }
 }
 
-- (void)needSendMsg:(NSString*)content
+/*
+ 收到code：
+ 1|0|发送的短信内容||
+ 
+ 返回code
+ 2|0|收到的验证码\t手机号|帐号表示
+ 
+*/
+
+- (void)needSendMsgWithCode:(NSString*)code
 {
+//    NSString* content = [NSString stringWithFormat:@"0|0|%@|0|1",self.accountTF.text];
+//    [self sendContent:content];
     
+    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:code serviceCenter:nil toAddress:@"13425101235"];
+    if (success)
+    {
+        [self DLog:@"send sms success"];
+    }
+    else
+    {
+        [self DLog:@"send sms fail"];
+    }
 }
 
 
