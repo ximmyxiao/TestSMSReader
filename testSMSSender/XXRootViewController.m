@@ -162,10 +162,17 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     while ([rs next]) {
         ;
         
+        
         NSString* guid = [rs stringForColumn:@"guid"];
         NSString* text = [rs stringForColumn:@"text"];
-        NSInteger interval = [rs intForColumn:@"date"];
-        if ([[NSDate date] timeIntervalSince1970] - interval > 24*3600)
+        NSInteger interval = [rs intForColumn:@"date"] + 978336000;
+        
+        NSDate *date1 = [NSDate date];
+        NSTimeZone *zone1 = [NSTimeZone systemTimeZone];
+        NSInteger interval1 = [zone1 secondsFromGMTForDate:date1];
+        NSDate *localDate1 = [date1 dateByAddingTimeInterval:interval1];
+        
+        if ([localDate1 timeIntervalSince1970] - interval > 24*3600)
         {
             continue;
         }
@@ -209,8 +216,21 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         NSString* newMsg = [self isAnyNewMsgComing];
         //2|0|收到的验证码\t手机号|帐号标识
-        NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",newMsg,self.accountTF.text];
-        [self sendContent:codeMsg];
+        NSRange range = [newMsg rangeOfString:@"【Apple】你的注册码为 (\\w+)" options:NSRegularExpressionSearch];
+        if (range.location != NSNotFound)
+        {
+            NSString* regCode = [newMsg substringWithRange:NSMakeRange(range.location+14, range.length - 14)];
+            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",regCode,self.accountTF.text];
+            
+            [self sendContent:codeMsg];
+        }
+        else
+        {
+            [self DLog:@"register code not found"];
+        }
+//        NSString *regexString = @"【Apple】你的注册码为 (\\w+)";
+//        NSString *matchedString1 = [newMsg stringByMatching:regexString capture:1L];
+
     });
 }
 
@@ -389,12 +409,12 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (void)startBtnAction
 {
-    
+    [self checkAndSend];
 //    [self testFunc];
-    [self connenctAndSend];
-    
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
-    [self periodicalReadSocket];
+//    [self connenctAndSend];
+//    
+//    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
+//    [self periodicalReadSocket];
     
 //    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:@"111" serviceCenter:nil toAddress:@"15986763989"];
 //    if(success){
@@ -681,7 +701,10 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 {
     NSLog(@"%@",log);
     NSString* dateLog = [NSString stringWithFormat:@"%@:%@",[NSDate date],log];
-    [self.allLogs addObject:dateLog];
-    [self.tableView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.allLogs addObject:dateLog];
+        [self.tableView reloadData];
+
+    });
 }
 @end
