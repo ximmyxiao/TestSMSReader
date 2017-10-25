@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.906164"
+            timestampString = "530616128.681279"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "367"
-            endingLineNumber = "367"
+            startingLineNumber = "453"
+            endingLineNumber = "453"
             landmarkName = "-loadView"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,7 +26,7 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/MsgCell.m"
-            timestampString = "530611132.906543"
+            timestampString = "530616128.68135"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "50"
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.906585"
+            timestampString = "530616128.681404"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "455"
-            endingLineNumber = "455"
+            startingLineNumber = "541"
+            endingLineNumber = "541"
             landmarkName = "-connectSocket"
             landmarkType = "7">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.906773"
+            timestampString = "530616128.681457"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "489"
-            endingLineNumber = "489"
+            startingLineNumber = "575"
+            endingLineNumber = "575"
             landmarkName = "-socket:didConnectToHost:port:"
             landmarkType = "7">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.906959"
+            timestampString = "530616128.681498"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "485"
-            endingLineNumber = "485"
+            startingLineNumber = "571"
+            endingLineNumber = "571"
             landmarkName = "-socketDidDisconnect:withError:"
             landmarkType = "7">
          </BreakpointContent>
@@ -90,11 +90,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.907138"
+            timestampString = "530616128.681539"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "407"
-            endingLineNumber = "407"
+            startingLineNumber = "493"
+            endingLineNumber = "493"
             landmarkName = "-tableView:cellForRowAtIndexPath:"
             landmarkType = "7">
          </BreakpointContent>
@@ -106,11 +106,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.907309"
+            timestampString = "530616128.68158"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "457"
-            endingLineNumber = "457"
+            startingLineNumber = "543"
+            endingLineNumber = "543"
             landmarkName = "-connectSocket"
             landmarkType = "7">
          </BreakpointContent>
@@ -122,11 +122,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "testSMSSender/XXRootViewController.m"
-            timestampString = "530611132.907482"
+            timestampString = "530616128.681618"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "484"
-            endingLineNumber = "484"
+            startingLineNumber = "570"
+            endingLineNumber = "570"
             landmarkName = "-socketDidDisconnect:withError:"
             landmarkType = "7">
          </BreakpointContent>
@@ -234,7 +234,7 @@
                   moduleName = "testSMSSender"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/piaopiao/Documents/GitHub/TestSMSReader/testSMSSender/GCDAsyncSocket.m"
-                  timestampString = "530611132.966925"
+                  timestampString = "530616128.725234"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "3267"
@@ -249,7 +249,7 @@
                   moduleName = "testSMSSender"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/piaopiao/Documents/GitHub/TestSMSReader/testSMSSender/GCDAsyncSocket.m"
-                  timestampString = "530611132.96945"
+                  timestampString = "530616128.727691"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "3267"
@@ -257,6 +257,22 @@
                   offsetFromSymbolStart = "12">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "testSMSSender/XXRootViewController.m"
+            timestampString = "530616128.681725"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "220"
+            endingLineNumber = "220"
+            landmarkName = "-testFunc"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

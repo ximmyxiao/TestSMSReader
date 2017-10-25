@@ -40,7 +40,7 @@
 
 #define TOTAL_HEADER_HEIGHT (260)
 
-#define SERVER_RETURN_STEP_0_OK @"0|0|ok"
+#define SERVER_RETURN_STEP_0_OK @"0|0|ok|"
 #define SERVER_RETURN_STEP_1_OK @"1|0"
 
 typedef NS_ENUM(NSInteger,SOCKET_STATE) {
@@ -101,6 +101,10 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
         NSString* guid = [rs stringForColumn:@"guid"];
         NSString* text = [rs stringForColumn:@"text"];
         NSInteger interval = [rs intForColumn:@"date"];
+        if ([[NSDate date] timeIntervalSince1970] - interval > 24*3600)
+        {
+            continue;
+        }
         NSDate* sendDate = [NSDate dateWithTimeIntervalSince1970:interval];
         MsgModel* model = [MsgModel new];
         model.msgsender = guid;
@@ -133,23 +137,105 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     [self.tableView reloadData];
 }
 
+- (NSString*)isAnyNewMsgComing
+{
+    NSString* newMsg;
+    NSMutableArray* thisTimeFetch = [NSMutableArray array];
+    
+    
+    NSString * path = self.dbPath;
+    
+    FMDatabase *db = [FMDatabase databaseWithPath:path];
+    
+    if (![db open]) {
+        [self showAlertMessage:@"Could not open db."];
+    }
+    
+    NSInteger count = [db intForQuery:@"SELECT count(*) FROM message"];
+    //    NSString* countString = [NSString stringWithFormat:@"total msg count:%ld",(long)count];
+    //    [self showAlertMessage:countString];
+    [self DLog:[NSString stringWithFormat:@"msg count:%ld",(long)count]];
+    
+    NSDateFormatter* dateFormat = [NSDateFormatter new];
+    [dateFormat setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    FMResultSet *rs = [db executeQuery:@"SELECT guid,text,date FROM message"];
+    while ([rs next]) {
+        ;
+        
+        NSString* guid = [rs stringForColumn:@"guid"];
+        NSString* text = [rs stringForColumn:@"text"];
+        NSInteger interval = [rs intForColumn:@"date"];
+        if ([[NSDate date] timeIntervalSince1970] - interval > 24*3600)
+        {
+            continue;
+        }
+        NSDate* sendDate = [NSDate dateWithTimeIntervalSince1970:interval];
+        MsgModel* model = [MsgModel new];
+        model.msgsender = guid;
+        model.msgContent = text;
+        model.msgTime = [dateFormat stringFromDate:sendDate];
+        newMsg = text;
+        [thisTimeFetch addObject:model];
+        
+        
+        
+    }
+    // close the result set.
+    // it'll also close when it's dealloc'd, but we're closing the database before
+    // the autorelease pool closes, so sqlite will complain about it.
+    [rs close];
+    
+    [db close];
+    
+    return newMsg;
+    
+}
+
 - (void)checkAndSend
 {
-    [self loadSMSData];
+    dispatch_group_t group = dispatch_group_create();
     
-    [self connectSocket];
+    dispatch_group_async(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        for (;;)
+        {
+            NSString* newMsg = [self isAnyNewMsgComing];
+            if ([newMsg length] > 0)
+            {
+                break;
+            }
+        }
+    });
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        NSString* newMsg = [self isAnyNewMsgComing];
+        //2|0|收到的验证码\t手机号|帐号标识
+        NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",newMsg,self.accountTF.text];
+        [self sendContent:codeMsg];
+    });
+}
 
-    for (MsgModel* model in self.allMsgs)
+- (void)testFunc
+{
+    NSString*readContent = @"0|0|ok|";
+    if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch] == NSOrderedSame)
     {
-        NSString *requestStrFrmt = @"%@\r\n\r\n";
-        
-        NSString *requestStr = [NSString stringWithFormat:requestStrFrmt,model.msgContent];
-        
-        //    NSString *requestStr = @"abcd";
-        //    requestStr = [requestStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        NSData *requestData = [requestStr dataUsingEncoding:NSUTF8StringEncoding];
-        
-        [self.socket writeData:requestData withTimeout:-1.0 tag:0];
+        [self startHeartBeatCheck];
+        [self sendHeartBeat];
+    }
+    else if ([readContent hasPrefix:SERVER_RETURN_STEP_1_OK])
+    {
+        //1|0|发送的短信内容||
+        NSArray* array = [readContent componentsSeparatedByString:@"|"];
+        if ([array count] >= 3)
+        {
+            NSString* code = array[2];
+            [self needSendMsgWithCode:code];
+            
+        }
+        else
+        {
+            [self DLog:@"step 1 ok return error"];
+        }
     }
 }
 
@@ -158,7 +244,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 {
     [super viewDidLoad];
     self.allLogs = [NSMutableArray array];
-    
+    self.edgesForExtendedLayout = UIRectEdgeTop;
     
     UIView* headerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, TOTAL_HEADER_HEIGHT)];
     headerView.backgroundColor = [UIColor colorWithRed:0xec/255.0 green:0xec/255.0 blue:0xec/255.0 alpha:1];
@@ -297,14 +383,14 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     [btn setTitle:@"开始" forState:UIControlStateNormal];
     [btn addTarget:self action:@selector(startBtnAction) forControlEvents:UIControlEventTouchUpInside];
     [headerView addSubview:btn];
-
-    [self loadSMSData];
     
 //    [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(checkAndSend) userInfo:nil repeats:YES];
 }
 
 - (void)startBtnAction
 {
+    
+//    [self testFunc];
     [self connenctAndSend];
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
@@ -502,7 +588,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString* log = [NSString stringWithFormat:@"socket read:%@",readContent];
     [self DLog:log];
 
-    if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch])
+    if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch] == NSOrderedSame)
     {
         [self startHeartBeatCheck];
         [self sendHeartBeat];
@@ -515,6 +601,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
         {
             NSString* code = array[2];
             [self needSendMsgWithCode:code];
+            [self checkAndSend];
 
         }
         else
