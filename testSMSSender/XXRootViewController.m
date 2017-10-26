@@ -151,10 +151,10 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
         [self showAlertMessage:@"Could not open db."];
     }
     
-    NSInteger count = [db intForQuery:@"SELECT count(*) FROM message"];
+    [db intForQuery:@"SELECT count(*) FROM message"];
     //    NSString* countString = [NSString stringWithFormat:@"total msg count:%ld",(long)count];
     //    [self showAlertMessage:countString];
-    [self DLog:[NSString stringWithFormat:@"msg count:%ld",(long)count]];
+//    [self DLog:[NSString stringWithFormat:@"msg count:%ld",(long)count]];
     
     NSDateFormatter* dateFormat = [NSDateFormatter new];
     [dateFormat setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
@@ -220,7 +220,11 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
         if (range.location != NSNotFound)
         {
             NSString* regCode = [newMsg substringWithRange:NSMakeRange(range.location+14, range.length - 14)];
-            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",regCode,self.accountTF.text];
+            NSString* regLog = [NSString stringWithFormat:@"register code :%@ length:%ld",regCode ,(unsigned long)[regCode length]];
+            [self DLog:regLog];
+            
+//            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",regCode,self.accountTF.text];
+            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\r\n",regCode];
             
             [self sendContent:codeMsg];
         }
@@ -236,27 +240,13 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (void)testFunc
 {
-    NSString*readContent = @"0|0|ok|";
-    if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch] == NSOrderedSame)
-    {
-        [self startHeartBeatCheck];
-        [self sendHeartBeat];
-    }
-    else if ([readContent hasPrefix:SERVER_RETURN_STEP_1_OK])
-    {
-        //1|0|发送的短信内容||
-        NSArray* array = [readContent componentsSeparatedByString:@"|"];
-        if ([array count] >= 3)
-        {
-            NSString* code = array[2];
-            [self needSendMsgWithCode:code];
-            
-        }
-        else
-        {
-            [self DLog:@"step 1 ok return error"];
-        }
-    }
+    NSString* regCode = @"NLNREM13";
+    NSString* regLog = [NSString stringWithFormat:@"register code :%@ length:%ld",regCode ,(unsigned long)[regCode length]];
+    [self DLog:regLog];
+    
+    NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",regCode,self.accountTF.text];
+    [self sendContent:codeMsg];
+
 }
 
 
@@ -424,7 +414,6 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 {
 //    [self testFunc];
     [self connenctAndSend];
-    
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicalReadSocket) object:nil];
     [self periodicalReadSocket];
 
@@ -488,7 +477,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 44;
+    return 44*2;
 
 }
 
@@ -580,7 +569,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     NSString* readContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSString* log = [NSString stringWithFormat:@"socket read:%@",readContent];
     [self DLog:log];
-
+    readContent = [readContent stringByReplacingOccurrencesOfString:@"\r\n" withString:@""];
     if ([readContent compare:SERVER_RETURN_STEP_0_OK options:NSCaseInsensitiveSearch] == NSOrderedSame)
     {
         [self startHeartBeatCheck];

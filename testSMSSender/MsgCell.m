@@ -20,8 +20,8 @@
         self.authorLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 10, 100, 20)];
         self.timeLabel = [[UILabel alloc] initWithFrame:CGRectMake([UIScreen mainScreen].bounds.size.width - 10 - 100, 10, 100, 20)];
         self.timeLabel.textAlignment = NSTextAlignmentRight;
-        self.contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, [UIScreen mainScreen].bounds.size.width - 20, 40)];
-        self.contentLabel.numberOfLines = 2;
+        self.contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 4, [UIScreen mainScreen].bounds.size.width - 20, 80)];
+        self.contentLabel.numberOfLines = 0;
 
         [self.contentView addSubview:self.authorLabel];
         [self.contentView addSubview:self.timeLabel];
@@ -41,7 +41,7 @@
     _msgContent = msgContent;
     self.contentLabel.text = msgContent;
     [self.contentLabel sizeToFit];
-    self.contentLabel.frame = CGRectMake(10, 0, [UIScreen mainScreen].bounds.size.width - 20, self.contentLabel.bounds.size.height);
+    self.contentLabel.frame = CGRectMake(10, 4, [UIScreen mainScreen].bounds.size.width - 20, self.contentLabel.bounds.size.height);
 }
 
 - (void)setModel:(MsgModel *)model
@@ -51,7 +51,7 @@
     self.timeLabel.text = model.msgTime;
     self.contentLabel.text = model.msgContent;
     [self.contentLabel sizeToFit];
-    self.contentLabel.frame = CGRectMake(10, 0, [UIScreen mainScreen].bounds.size.width - 20, self.contentLabel.bounds.size.height);
+    self.contentLabel.frame = CGRectMake(10, 4, [UIScreen mainScreen].bounds.size.width - 20, self.contentLabel.bounds.size.height);
 }
 
 - (void)awakeFromNib {
