@@ -32,10 +32,6 @@
     return self;
 }
 
-- (void)prepareForReuse
-{
-    
-}
 - (void)setMsgContent:(NSString*)msgContent
 {
     _msgContent = msgContent;

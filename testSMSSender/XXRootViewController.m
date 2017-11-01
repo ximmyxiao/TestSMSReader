@@ -224,7 +224,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
             [self DLog:regLog];
             
 //            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\t15920087392|%@",regCode,self.accountTF.text];
-            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@\r\n",regCode];
+            NSString* codeMsg = [NSString stringWithFormat:@"2|0|%@",regCode];
             
             [self sendContent:codeMsg];
         }
@@ -324,7 +324,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 
     self.accountTF = [[UITextField alloc] initWithFrame:CGRectMake(120,yOrigin,200, 20)];
     self.accountTF.backgroundColor = [UIColor whiteColor];
-    self.accountTF.text = @"39432.1";
+    self.accountTF.text = @"50797.1";
     self.accountTF.placeholder = @"请输入电脑端显示的账号标识";
     self.accountTF.font = [UIFont systemFontOfSize:14];
 
@@ -346,7 +346,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
     
     self.sendToTF = [[UITextField alloc] initWithFrame:CGRectMake(120,yOrigin,200, 20)];
     self.sendToTF.backgroundColor = [UIColor whiteColor];
-    self.sendToTF.text = @"";
+    self.sendToTF.text = @"13425101235";
     self.sendToTF.placeholder = @"";
     [headerView addSubview:self.sendToTF];
     
@@ -647,7 +647,7 @@ typedef NS_ENUM(NSInteger,SOCKET_STATE) {
 //    NSString* content = [NSString stringWithFormat:@"0|0|%@|0|1",self.accountTF.text];
 //    [self sendContent:content];
     
-    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:code serviceCenter:nil toAddress:@"13425101235"];
+    BOOL success =  [[CTMessageCenter sharedMessageCenter] sendSMSWithText:code serviceCenter:nil toAddress:self.sendToTF.text];
     if (success)
     {
         [self DLog:@"send sms success"];
